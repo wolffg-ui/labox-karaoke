@@ -366,7 +366,6 @@ export default function App() {
   const [editingUnforeseen, setEditingUnforeseen] = useState<Unforeseen | null>(null);
   const [weekValidations, setWeekValidations] = useState<Record<string, WeekValidation>>({});
   const [managementTasks, setManagementTasks] = useState<ManagementTask[]>([]);
-  const [showDeadlineAlert, setShowDeadlineAlert] = useState<{ show: boolean; weekStart: string; weekEnd: string; deadline: string } | null>(null);
 
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(t); }, []);
   useEffect(() => {
@@ -399,29 +398,10 @@ export default function App() {
     }
   }, [weekValidations]);
 
-  // Génération des tâches de gestion et vérification des deadlines
+  // Génération des tâches de gestion
   useEffect(() => {
     const tasks = generateManagementTasks(now, weekValidations);
     setManagementTasks(tasks);
-
-    // Vérifier s'il y a une alerte à afficher
-    let alertTask = null;
-    for (const task of tasks) {
-      const daysUntil = getDaysUntilDeadline(task.deadline, now);
-      if (!task.checked && daysUntil <= 3) {
-        alertTask = task;
-        break;
-      }
-    }
-
-    if (alertTask && !showDeadlineAlert) {
-      setShowDeadlineAlert({
-        show: true,
-        weekStart: alertTask.weekStart,
-        weekEnd: alertTask.weekEnd,
-        deadline: alertTask.deadline
-      });
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [now, weekValidations]);
 
@@ -748,32 +728,6 @@ export default function App() {
 
   if (loading) return <div style={{ height:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#fff" }}><div style={{ fontFamily:"monospace", fontSize:11, color:"#CCC", letterSpacing:"0.2em" }}>CHARGEMENT</div></div>;
 
-  // Pop-up modal d'alerte de deadline
-  const renderDeadlineAlertModal = () => {
-    if (!showDeadlineAlert?.show) return null;
-    const daysUntil = getDaysUntilDeadline(showDeadlineAlert.deadline, now);
-
-    return (
-      <div style={{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,0.5)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:999, fontFamily:"'Inter',-apple-system,BlinkMacSystemFont,sans-serif" }}>
-        <div style={{ background:"#fff", borderRadius:8, padding:32, maxWidth:380, boxShadow:"0 20px 60px rgba(0,0,0,0.3)" }}>
-          <div style={{ fontSize:24, fontWeight:900, marginBottom:12, display:"flex", alignItems:"center", gap:12 }}>
-            <span style={{fontSize:32}}>⚠️</span> Attention!
-          </div>
-          <div style={{ fontSize:14, color:"#666", marginBottom:24, lineHeight:1.6 }}>
-            <strong>Planning non validé</strong><br/>
-            Le planning du {showDeadlineAlert.weekStart} au {showDeadlineAlert.weekEnd} doit être validé <strong>avant le {showDeadlineAlert.deadline}</strong>.
-            {daysUntil <= 0 && <><br/><br/><span style={{color:"#DC3545"}}>La deadline est dépassée!</span></>}
-            {daysUntil > 0 && <><br/><br/>Il reste <strong>{daysUntil} jour{daysUntil !== 1 ? 's' : ''}</strong> pour valider.</>}
-          </div>
-          <div style={{ display:"flex", gap:8 }}>
-            <button onClick={() => { setTab("gestion"); setShowDeadlineAlert(null); }} style={{ flex:1, ...btnDark, fontFamily:"inherit" } as any}>Aller valider →</button>
-            <button onClick={() => setShowDeadlineAlert(null)} style={{ flex:1, ...btnGhost, fontFamily:"inherit" } as any}>Fermer</button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   // Debug: Log unforeseens state on every render
   console.log(`[DEBUG RENDER] ========== RENDER STATE ==========`);
   console.log(`[DEBUG RENDER] Total unforeseens in state: ${unforeseens.length}`);
@@ -843,7 +797,6 @@ export default function App() {
           </div>
         </div>
       </div>
-      {renderDeadlineAlertModal()}
     </>
   );
 
@@ -1103,7 +1056,6 @@ export default function App() {
           a { color: black !important; }
         }
       `}</style>
-      {renderDeadlineAlertModal()}
     </div>
   );
 
@@ -1113,7 +1065,7 @@ export default function App() {
       <div style={hdr as any}><div><div style={logo as any}>Planning 2 semaines</div><div style={eyebrow as any}>Assignation par jour</div></div><button onClick={() => setScreen("profile")} style={{ background:"none", border:"none", fontSize:11, color:"#AAA", cursor:"pointer", fontFamily:"inherit", marginTop:4 } as any}>← retour</button></div>
       <div style={{ ...body, paddingTop:24 } as any}>
         {/* Affichage des semaines avec badges de deadline */}
-        {Array.from({ length: 2 }).map((_, weekIdx) => {
+        {Array.from({ length: 4 }).map((_, weekIdx) => {
           const mondayOffset = Math.ceil((now.getDay() - 1) * -1);
           const weekStart = getDateFromDayOffset(mondayOffset + weekIdx * 7);
           const weekEnd = getDateFromDayOffset(mondayOffset + weekIdx * 7 + 6);
@@ -1239,7 +1191,6 @@ export default function App() {
           );
         })}
       </div>
-      {renderDeadlineAlertModal()}
     </div>
   );
 
@@ -1507,7 +1458,6 @@ export default function App() {
           })()}
         </div>
       </div>
-      {renderDeadlineAlertModal()}
     </div>
   );
 
@@ -1523,7 +1473,6 @@ export default function App() {
           </button>
         ))}
       </div>
-      {renderDeadlineAlertModal()}
     </div>
   );
 
@@ -1559,8 +1508,7 @@ export default function App() {
             </div>
           </div>
         </div>
-        {renderDeadlineAlertModal()}
-      </>
+        </>
     );
   }
 
@@ -1593,7 +1541,6 @@ export default function App() {
           {launching ? <span style={{ fontSize:12, letterSpacing:"0.18em" }}>LANCEMENT...</span> : <><span style={{ fontSize:18, lineHeight:1 }}>▶</span> Démarrer la journée</>}
         </button>
       </div>
-      {renderDeadlineAlertModal()}
     </div>
   );
 
@@ -1764,8 +1711,7 @@ export default function App() {
           </div>
         )}
         </div>
-        {renderDeadlineAlertModal()}
-      </>
+        </>
     );
   }
 
