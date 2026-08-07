@@ -1734,7 +1734,7 @@ export default function App() {
             <button onClick={() => setScreen("profile")} style={{ padding: "10px 16px", background: "#fff", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>← RETOUR</button>
             <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
               <button onClick={() => setMonthOffset(monthOffset - 1)} style={{ padding: "10px 14px", background: "#f5f5f5", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Mois précédent</button>
-              <button onClick={() => setMonthOffset(0)} style={{ padding: "10px 14px", background: "#f5f5f5", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Aujourd'hui</button>
+              <button onClick={() => setMonthOffset(0)} style={{ padding: "10px 14px", background: "#f5f5f5", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Aujourd&apos;hui</button>
               <button onClick={() => setMonthOffset(monthOffset + 1)} style={{ padding: "10px 14px", background: "#f5f5f5", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Mois suivant →</button>
             </div>
           </div>
@@ -1798,7 +1798,7 @@ export default function App() {
                   <div style={{ marginBottom: 12, paddingBottom: 10, borderBottom: "2px solid rgba(0,0,0,0.08)", position: "relative", zIndex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                       <div style={{ fontSize: 28, fontWeight: 900, color: "#0A0A0A", lineHeight: 1 }}>{day.date}</div>
-                      {isToday && <span style={{ background: "#FF6F00", color: "#fff", padding: "3px 8px", borderRadius: 4, fontSize: 8, fontWeight: 700, letterSpacing: "0.05em" }}>AUJOURD'HUI</span>}
+                      {isToday && <span style={{ background: "#FF6F00", color: "#fff", padding: "3px 8px", borderRadius: 4, fontSize: 8, fontWeight: 700, letterSpacing: "0.05em" }}>AUJOURD&apos;HUI</span>}
                     </div>
                   </div>
 
