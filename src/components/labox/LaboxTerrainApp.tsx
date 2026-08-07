@@ -1614,20 +1614,6 @@ export default function App() {
         {/* GESTION */}
         {tab === "gestion" && (
           <div style={{ ...body, paddingTop:24 } as any}>
-            {/* Alerte deadline si nécessaire */}
-            {showDeadlineAlert?.show && (
-              <div style={{ marginBottom:24, padding:16, background:"#FFF3CD", border:"2px solid #FFC107", borderRadius:6 }}>
-                <div style={{ fontSize:13, fontWeight:700, color:"#856404", marginBottom:12, display:"flex", gap:8, alignItems:"flex-start" }}>
-                  <span style={{fontSize:18}}>⏳</span>
-                  <div>
-                    <div>Attention: Planning non validé!</div>
-                    <div style={{fontSize:11, fontWeight:400, marginTop:2}}>Le planning du {showDeadlineAlert.weekStart} au {showDeadlineAlert.weekEnd} doit être validé avant le {showDeadlineAlert.deadline}</div>
-                  </div>
-                </div>
-                <button onClick={() => setShowDeadlineAlert(null)} style={{ background:"#856404", color:"#fff", border:"none", borderRadius:3, padding:"8px 16px", fontSize:11, fontWeight:700, cursor:"pointer", fontFamily:"inherit" } as any}>✓ Fermer l&apos;alerte</button>
-              </div>
-            )}
-
             {/* Tâches de validation du planning */}
             <div style={{ marginBottom:36 }}>
               <div style={{ fontSize:12, fontWeight:800, letterSpacing:"0.06em", marginBottom:14, color:"#0A0A0A" }}>VALIDATIONS DU PLANNING</div>
