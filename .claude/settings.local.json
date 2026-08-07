@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:eproc.coe.int)",
+      "WebSearch",
+      "WebFetch(domain:www.coe.int)",
+      "mcp__Claude_in_Chrome__navigate",
+      "Bash(npm run *)",
+      "Bash(ls -la ~/Desktop/\"LA BOX KARAOKE\"/ | head -20)",
+      "Bash(rm -rf ~/Desktop/\"LA BOX KARAOKE\"/uigen)",
+      "Bash(cp -r /Users/geoffreywolff/Downloads/uigen/* ~/Desktop/\"LA BOX KARAOKE\"/)",
+      "Bash(chmod +x ~/Desktop/\"LA BOX KARAOKE\"/LANCER.command)",
+      "Bash(chmod +x '/Users/geoffreywolff/Desktop/LA BOX KARAOKE/LANCER.command')",
+      "Bash(ls -la ~/Desktop/ | grep \"LA BOX\")",
+      "Bash(rm -rf ~/Desktop/\"LA BOX KARAOKE\")",
+      "Bash(mkdir -p ~/Desktop/\"LA BOX KARAOKE\")",
+      "Bash(cat > *)",
+      "Bash(awk '{print $9, \"\\(\" $5 \"\\)\"}')",
+      "Bash(npm install *)",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}
