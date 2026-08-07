@@ -7,9 +7,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   devIndicators: false,
-  // Pin the workspace root so a stray yarn.lock or package.json elsewhere
-  // on the learner's machine can't hijack Turbopack's module resolution.
-  turbopack: { root: process.cwd() },
 };
 
 export default nextConfig;
