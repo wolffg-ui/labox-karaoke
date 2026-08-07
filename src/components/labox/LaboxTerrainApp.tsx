@@ -366,6 +366,7 @@ export default function App() {
   const [editingUnforeseen, setEditingUnforeseen] = useState<Unforeseen | null>(null);
   const [weekValidations, setWeekValidations] = useState<Record<string, WeekValidation>>({});
   const [managementTasks, setManagementTasks] = useState<ManagementTask[]>([]);
+  const [monthOffset, setMonthOffset] = useState(0);
 
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(t); }, []);
   useEffect(() => {
@@ -790,6 +791,7 @@ export default function App() {
           <div style={{ marginTop:40, paddingTop:16, borderTop:"1px solid #F0F0F0", display:"flex", flexDirection:"column", gap:8 } as any}>
             <div style={{ ...label, marginBottom:4 } as any}>Outils</div>
             <button onClick={() => setScreen("calendar")} style={{ ...btnGhost, width:"100%", textAlign:"left" } as any}>📆 Calendrier visuel →</button>
+            <button onClick={() => { setScreen("monthly"); setMonthOffset(0); }} style={{ ...btnGhost, width:"100%", textAlign:"left" } as any}>📆 Planning du mois →</button>
             <button onClick={() => setScreen("planning")} style={{ ...btnGhost, width:"100%", textAlign:"left" } as any}>📅 Planning 2 semaines →</button>
             <button onClick={() => setScreen("editor")} style={{ ...btnGhost, width:"100%", textAlign:"left" } as any}>🛠 Modifier les fiches de poste →</button>
             <button onClick={() => { setScreen("active"); setTab("gestion"); }} style={{ ...btnGhost, width:"100%", textAlign:"left" } as any}>📋 Tâches de gestion →</button>
@@ -1698,6 +1700,176 @@ export default function App() {
         )}
         </div>
         </>
+    );
+  }
+
+  // SCREEN: MONTHLY PLANNING
+  if (screen === "monthly") {
+    const displayDate = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+    const monthStr = `${MONTHS[displayDate.getMonth()]} ${displayDate.getFullYear()}`;
+
+    // Get first day of month and total days
+    const firstDay = new Date(displayDate.getFullYear(), displayDate.getMonth(), 1).getDay();
+    const daysInMonth = new Date(displayDate.getFullYear(), displayDate.getMonth() + 1, 0).getDate();
+    const daysInPrevMonth = new Date(displayDate.getFullYear(), displayDate.getMonth(), 0).getDate();
+
+    // Create calendar grid
+    const calendarDays = [];
+    for (let i = firstDay - 1; i >= 0; i--) {
+      calendarDays.push({ date: daysInPrevMonth - i, isCurrentMonth: false });
+    }
+    for (let i = 1; i <= daysInMonth; i++) {
+      calendarDays.push({ date: i, isCurrentMonth: true });
+    }
+    const remainingDays = 42 - calendarDays.length;
+    for (let i = 1; i <= remainingDays; i++) {
+      calendarDays.push({ date: i, isCurrentMonth: false });
+    }
+
+    return (
+      <div style={{ background: "linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%)", minHeight: "100vh", padding: "20px", fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+        {/* Header */}
+        <div style={{ maxWidth: 1200, margin: "0 auto 40px", background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", border: "1px solid #e0e0e0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+            <button onClick={() => setScreen("profile")} style={{ padding: "10px 16px", background: "#fff", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>← RETOUR</button>
+            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <button onClick={() => setMonthOffset(monthOffset - 1)} style={{ padding: "10px 14px", background: "#f5f5f5", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Mois précédent</button>
+              <button onClick={() => setMonthOffset(0)} style={{ padding: "10px 14px", background: "#f5f5f5", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Aujourd'hui</button>
+              <button onClick={() => setMonthOffset(monthOffset + 1)} style={{ padding: "10px 14px", background: "#f5f5f5", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Mois suivant →</button>
+            </div>
+          </div>
+
+          <h1 style={{ margin: "0 0 8px 0", fontSize: 42, fontWeight: 900, color: "#0A0A0A", letterSpacing: "-1px" }}>Planning du mois</h1>
+          <h2 style={{ margin: 0, fontSize: 24, color: "#FF9800", fontWeight: 700 }}>{monthStr}</h2>
+        </div>
+
+        {/* Calendar Grid */}
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          {/* Day headers */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12, marginBottom: 16 }}>
+            {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(day => (
+              <div key={day} style={{ padding: "12px", textAlign: "center", fontSize: 12, fontWeight: 800, color: "#666", letterSpacing: "0.05em", textTransform: "uppercase" }}>{day}</div>
+            ))}
+          </div>
+
+          {/* Calendar days */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12 }}>
+            {calendarDays.map((day, idx) => {
+              if (!day.isCurrentMonth) {
+                return <div key={idx} style={{ borderRadius: 12, padding: 16, background: "#f9f9f9", minHeight: 240, opacity: 0.4 }}></div>;
+              }
+
+              const actualDate = new Date(displayDate.getFullYear(), displayDate.getMonth(), day.date);
+              const dayOfWeek = actualDate.getDay();
+              const dIdx = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert to 0=Mon, 6=Sun
+              const assigns = todaysAssignments(planning, dIdx);
+              const dateFormatted = formatDate(actualDate);
+              const isToday = formatDate(now) === dateFormatted;
+
+              const unforeseenEvents = unforeseens.filter(u => {
+                if (!u.dateStart || !u.dateEnd) return false;
+                const normStart = formatDateString(u.dateStart);
+                const normEnd = formatDateString(u.dateEnd);
+                if (!normStart || !normEnd) return false;
+                return (u.status === "pending" || u.status === "accepted") && dateFormatted >= normStart && dateFormatted <= normEnd;
+              });
+              const hasUnforeseen = unforeseenEvents.length > 0;
+
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    borderRadius: 12,
+                    padding: 16,
+                    background: isToday ? "linear-gradient(135deg, #fff3e0 0%, #ffe8cc 100%)" : hasUnforeseen ? "linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)" : "#fff",
+                    minHeight: 240,
+                    display: "flex",
+                    flexDirection: "column",
+                    border: isToday ? "3px solid #FF6F00" : hasUnforeseen ? "3px solid #DC3545" : "1px solid #e0e0e0",
+                    boxShadow: isToday ? "0 8px 24px rgba(255, 111, 0, 0.2)" : hasUnforeseen ? "0 8px 24px rgba(220, 53, 69, 0.15)" : "0 2px 8px rgba(0, 0, 0, 0.06)",
+                    position: "relative" as const,
+                    overflow: "hidden" as const
+                  }}
+                >
+                  {/* Decorative corner accent */}
+                  <div style={{ position: "absolute", top: 0, right: 0, width: 60, height: 60, background: "radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 100%)", borderRadius: "0 0 0 100%" }} />
+
+                  {/* Day Header */}
+                  <div style={{ marginBottom: 12, paddingBottom: 10, borderBottom: "2px solid rgba(0,0,0,0.08)", position: "relative", zIndex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <div style={{ fontSize: 28, fontWeight: 900, color: "#0A0A0A", lineHeight: 1 }}>{day.date}</div>
+                      {isToday && <span style={{ background: "#FF6F00", color: "#fff", padding: "3px 8px", borderRadius: 4, fontSize: 8, fontWeight: 700, letterSpacing: "0.05em" }}>AUJOURD'HUI</span>}
+                    </div>
+                  </div>
+
+                  {/* Unforeseen Events */}
+                  {hasUnforeseen && (
+                    <div style={{ marginBottom: 12, padding: 10, background: "rgba(220, 53, 69, 0.08)", borderLeft: "4px solid #DC3545", borderRadius: 6, fontSize: 10, color: "#DC3545", fontWeight: 600 }}>
+                      {unforeseenEvents.map((uf, i) => (
+                        <div key={i} style={{ marginBottom: i < unforeseenEvents.length - 1 ? 4 : 0 }}>
+                          <span style={{ fontSize: 12 }}>🔴</span> {uf.reason.substring(0, 20)}...
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Assignments */}
+                  <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
+                    {assigns.length === 0 ? (
+                      <div style={{ fontSize: 11, color: "#ccc", fontStyle: "italic", textAlign: "center", paddingTop: 16, paddingBottom: 16 }}>—</div>
+                    ) : (
+                      assigns.map((a, aidx) => {
+                        const effective = getEffectiveAssignment(actualDate, a, unforeseens);
+                        const isJordan = effective.profile === "JORDAN";
+                        const bgGradient = isJordan ? "linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)" : "linear-gradient(135deg, #F57C00 0%, #FFB74D 100%)";
+                        const accentColor = isJordan ? "#0D47A1" : "#E65100";
+
+                        return (
+                          <div
+                            key={aidx}
+                            style={{
+                              fontSize: 10,
+                              marginBottom: aidx < assigns.length - 1 ? 8 : 0,
+                              padding: 9,
+                              background: bgGradient,
+                              color: "#fff",
+                              borderRadius: 8,
+                              borderLeft: `4px solid ${accentColor}`,
+                              boxShadow: effective.isReplacement ? "0 4px 12px rgba(220,53,69,0.25)" : "0 2px 6px rgba(0,0,0,0.12)",
+                              position: "relative" as const,
+                              overflow: "hidden" as const,
+                              fontWeight: 600
+                            }}
+                          >
+                            <div style={{ position: "absolute", top: 0, right: 0, width: 25, height: 25, background: "rgba(255,255,255,0.1)", borderRadius: "0 0 0 100%" }} />
+                            <div style={{ position: "relative", zIndex: 1 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 1 }}>
+                                <span>👤</span>
+                                {effective.profile}
+                                {effective.isReplacement && <span style={{ fontSize: 8, background: "rgba(255,255,255,0.3)", padding: "1px 4px", borderRadius: 2, marginLeft: "auto" }}>⚠️ REMPLACE</span>}
+                              </div>
+                              <div style={{ fontSize: 9, opacity: 0.9 }}>{(shifts[effective.shiftId] || {}).label || effective.shiftId}</div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div style={{ maxWidth: 1200, margin: "0 auto", marginTop: 40 }}>
+          <div style={{ padding: 20, background: "linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)", borderRadius: 12, border: "1px solid #c5cae9" }}>
+            <div style={{ fontSize: 12, color: "#333", lineHeight: 1.6 }}>
+              <strong>💡 Planning du mois :</strong> Affichage complet du mois avec tous les shifts assignés et imprévus. Chaque jour montre les assignations (Jordan en bleu, Clément en orange) et les imprévus signalés en rouge. Utilisez les boutons pour naviguer entre les mois.
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
